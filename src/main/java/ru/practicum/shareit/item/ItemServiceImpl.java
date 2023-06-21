@@ -55,9 +55,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findAll(Long ownerId) {
+    public List<ItemDto> findAllItemsByOwner(Long ownerId) {
         userStorage.findUserById(ownerId);
-        List<Item> items = itemStorage.findAll(ownerId);
+        List<Item> items = itemStorage.findAllItemsByOwner(ownerId);
         return itemDtoToList(items);
     }
 

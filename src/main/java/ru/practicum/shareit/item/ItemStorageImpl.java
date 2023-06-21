@@ -28,8 +28,10 @@ public class ItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<Item> findAll(Long ownerId) {
-        return items.values().stream().filter(item -> item.getOwner().getId().equals(ownerId))
+    public List<Item> findAllItemsByOwner(Long ownerId) {
+        return items.values()
+                .stream()
+                .filter(item -> item.getOwner().getId().equals(ownerId))
                 .collect(Collectors.toList());
     }
 

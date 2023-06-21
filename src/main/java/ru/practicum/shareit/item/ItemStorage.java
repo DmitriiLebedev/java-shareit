@@ -9,7 +9,7 @@ public interface ItemStorage {
 
     Item findItemById(Long itemId);
 
-    List<Item> findAll(Long ownerId);
+    List<Item> findAllItemsByOwner(Long ownerId);
 
     List<Item> search(String subString);
 }
