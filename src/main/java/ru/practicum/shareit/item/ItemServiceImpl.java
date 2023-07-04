@@ -4,42 +4,65 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.Booking;
+import ru.practicum.shareit.booking.BookingForItem;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.ValidationException;
+import ru.practicum.shareit.item.comment.*;
 import ru.practicum.shareit.user.UserDto;
-import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.UserStorage;
+import ru.practicum.shareit.user.UserService;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemServiceImpl implements ItemService {
-    final ItemStorage itemStorage;
-    final UserStorage userStorage;
-    final ItemMapper itemMapper;
-    final UserMapper userMapper;
+    final UserService userService;
+    final ItemRepository itemRepository;
+    final BookingRepository bookingRepository;
+    final CommentRepository commentRepository;
 
+    @Transactional
     @Override
     public ItemDto create(Long ownerId, ItemDto itemDto) {
-        UserDto owner = userMapper.toUserDto(userStorage.findUserById(ownerId));
-        itemDto.setOwner(owner);
-        Item item = itemMapper.toItem(itemDto);
-        return itemMapper.toItemDto(itemStorage.create(item));
+        UserDto owner = userService.findUserById(ownerId);
+        Item item = ItemMapper.toItem(itemDto);
+        item.setOwnerId(owner.getId());
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public ItemDto findItemById(Long itemId) {
-        return itemMapper.toItemDto(itemStorage.findItemById(itemId));
+    public ItemBookingModel findItemById(Long userId, Long itemId) {
+        Item item = getItemOptional(userId, itemId);
+        ItemBookingModel itemWithDates = ItemMapper.toItemWithDatesDto(item);
+        LocalDateTime currentTime = LocalDateTime.now();
+        if (item.getOwnerId().equals(userId)) {
+            BookingForItem lastBooking = bookingRepository.findLastBookingForItem(itemId, currentTime, BookingStatus.APPROVED)
+                    .stream().findFirst().orElse(null);
+            BookingForItem nextBooking = bookingRepository.findNextBookingForItem(itemId, currentTime, BookingStatus.APPROVED)
+                    .stream().findFirst().orElse(null);
+            itemWithDates.setLastBooking(lastBooking);
+            itemWithDates.setNextBooking(nextBooking);
+        }
+        List<CommentDto> comments = commentRepository.findAllByItem(itemId);
+        itemWithDates.setComments(comments);
+        return itemWithDates;
     }
 
+    @Transactional
     @Override
     public ItemDto update(ItemDto itemDto, Long itemId, Long ownerId) {
-        Item item = itemStorage.findItemById(itemId);
+        Item item = getItemOptional(ownerId, itemId);
         itemDto.setId(itemId);
-        itemDto.setOwner(userMapper.toUserDto(userStorage.findUserById(ownerId)));
-        if (itemDto.getOwner() != null && !itemDto.getOwner().getId().equals(item.getOwner().getId())) {
+        if (!item.getOwnerId().equals(ownerId)) {
             throw new NotFoundException("Item " + itemId + " can't be changed by this user");
         }
         if (itemDto.getName() != null && !itemDto.getName().equals(item.getName())) {
@@ -51,27 +74,44 @@ public class ItemServiceImpl implements ItemService {
         if (itemDto.getAvailable() != null && !itemDto.getAvailable().equals(item.getAvailable())) {
             item.setAvailable(itemDto.getAvailable());
         }
-        return itemMapper.toItemDto(itemStorage.update(item));
+        return ItemMapper.toItemDto(itemRepository.save(item));
     }
 
     @Override
-    public List<ItemDto> findAllItemsByOwner(Long ownerId) {
-        userStorage.findUserById(ownerId);
-        List<Item> items = itemStorage.findAllItemsByOwner(ownerId);
-        return itemDtoToList(items);
+    public List<ItemBookingModel> findAllItemsByOwner(Long ownerId) {
+        userService.getUserOptional(ownerId);
+        List<Item> items = itemRepository.findAllByOwnerId(ownerId);
+        return items.stream()
+                .map(item -> findItemById(ownerId, item.getId()))
+                .sorted(Comparator.comparing(ItemBookingModel::getId))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> search(String subString) {
-        List<Item> items = itemStorage.search(subString);
-        return itemDtoToList(items);
-    }
-
-    private List<ItemDto> itemDtoToList(List<Item> items) {
-        List<ItemDto> dto = new ArrayList<>();
-        for (Item item : items) {
-            dto.add(itemMapper.toItemDto(item));
+    public List<ItemDto> search(String text) {
+        if (text.isEmpty()) {
+            return Collections.emptyList();
         }
-        return dto;
+        List<Item> items = itemRepository.findItemsByTextIgnoreCase(text.toLowerCase());
+        return ItemMapper.toItemDtoList(items);
+    }
+
+    public CommentDto createComment(Long userId, Long itemId, CommentRequest commentRequest) {
+        List<Booking> bookings = bookingRepository.findByBookerIdAndItemId(userId, itemId)
+                .stream()
+                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                .collect(Collectors.toList());
+        if (bookings.isEmpty()) throw new ValidationException("Can't find bookings");
+        Comment comment = CommentMapper.toComment(commentRequest);
+        comment.setItem(getItemOptional(userId, itemId));
+        comment.setAuthor(userService.getUserOptional(userId));
+        Comment newComment = commentRepository.save(comment);
+        return CommentMapper.toCommentDto(newComment);
+    }
+
+    private Item getItemOptional(Long userId, Long itemId) {
+        userService.getUserOptional(userId);
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Can't find item id:" + itemId));
     }
 }
