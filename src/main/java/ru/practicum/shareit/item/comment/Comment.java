@@ -27,6 +27,6 @@ public class Comment {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id")
     User author;
-    @Column(name = "created_date")
+    @Column(name = "created")
     LocalDateTime created = LocalDateTime.now();
 }
