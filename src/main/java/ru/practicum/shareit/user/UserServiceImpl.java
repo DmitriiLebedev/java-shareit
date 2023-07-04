@@ -67,6 +67,7 @@ public class UserServiceImpl implements UserService {
                 .stream()
                 .anyMatch(user -> user.getEmail().equals(email));
     }
+
     @Override
     public User getUserOptional(Long id) {
         return userRepository.findById(id)
