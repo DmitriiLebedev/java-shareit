@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.sql.SQLException;
-
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
@@ -37,20 +35,6 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleServerError(final HttpServerErrorException.InternalServerError e) {
-        log.error(e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler({UnavailableException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleBadItemRequest(final RuntimeException e) {
-        log.error(e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler({RuntimeException.class})
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDbException(final SQLException e) {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
