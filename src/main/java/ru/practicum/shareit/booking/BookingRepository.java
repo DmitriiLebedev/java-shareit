@@ -26,41 +26,41 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start desc")
     List<BookingForItem> findLastBookingForItem(Long itemId, LocalDateTime currentTime, BookingStatus status);
 
-    @Query("select new ru.practicum.shareit.booking.Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("select b " +
             "from Booking as b " +
             "where b.booker.id = ?1 " +
             "and (?2 between b.start and b.end) " +
             "order by b.start desc")
     List<Booking> findAllByBookerIdCurrentBookings(Long userId, LocalDateTime now);
 
-    @Query("select new ru.practicum.shareit.booking.Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "order by b.start desc")
     List<Booking> findAllByOwnerIdOrderByStartDesc(Long ownerId);
 
-    @Query("select new ru.practicum.shareit.booking.Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and b.end < ?2 " +
             "order by b.start desc")
     List<Booking> findAllByOwnerIdAndEndIsBeforeOrderByStartDesc(Long ownerId, LocalDateTime now);
 
-    @Query("select new ru.practicum.shareit.booking.Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and b.start > ?2 " +
             "order by b.start desc")
     List<Booking> findAllByOwnerIdAndStartAfterOrderByStartDesc(Long ownerId, LocalDateTime now);
 
-    @Query("select new ru.practicum.shareit.booking.Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and (?2 between b.start and b.end) " +
             "order by b.start desc")
     List<Booking> findAllByOwnerIdCurrentBookings(Long ownerId, LocalDateTime now);
 
-    @Query("select new ru.practicum.shareit.booking.Booking(b.id, b.start, b.end, b.item, b.booker, b.status) " +
+    @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and b.status = ?2 " +

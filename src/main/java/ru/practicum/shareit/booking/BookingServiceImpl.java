@@ -62,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto setBookingStatus(Long userId, Long bookingId, Boolean approved) {
+    public BookingDto updateBookingStatus(Long userId, Long bookingId, Boolean approved) {
         Booking booking = getBookingOptional(bookingId);
         if (!booking.getItem().getOwnerId().equals(userId)) {
             throw new NotFoundException("Wrong owner");
