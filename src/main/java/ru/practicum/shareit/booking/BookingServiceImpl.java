@@ -1,10 +1,12 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnavailableException;
+import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -80,33 +82,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookerBookings(Long userId, String state) {
+    public List<BookingDto> getAllBookerBookings(Long userId, String state, int from, int size) {
+        if (from < 0 || size < 1) throw new ValidationException("Incorrect parameters");
         checkUser(userId);
         BookingState newState = BookingState.parseState(state);
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         switch (newState) {
             case ALL:
-                return bookingRepository.findAllByBookerIdOrderByStartDesc(userId)
+                return bookingRepository.findAllByBookerIdOrderByStartDesc(userId, page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case PAST:
-                return bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now())
+                return bookingRepository.findAllByBookerIdAndEndIsBeforeOrderByStartDesc(userId, LocalDateTime.now(), page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case FUTURE:
-                return bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now())
+                return bookingRepository.findAllByBookerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now(), page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case CURRENT:
-                return bookingRepository.findAllByBookerIdCurrentBookings(userId, LocalDateTime.now())
+                return bookingRepository.findAllByBookerIdCurrentBookings(userId, LocalDateTime.now(), page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             default:
                 BookingStatus status = BookingStatus.valueOf(String.valueOf(state));
-                return bookingRepository.findALLByBookerIdAndStatusOrderByStartDesc(userId, status)
+                return bookingRepository.findALLByBookerIdAndStatusOrderByStartDesc(userId, status, page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
@@ -114,33 +118,35 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookerItemsBooking(Long ownerId, String state) {
+    public List<BookingDto> getAllBookerItemsBooking(Long ownerId, String state, int from, int size) {
+        if (from < 0 || size < 1) throw new ValidationException("Incorrect parameters");
         checkUser(ownerId);
         BookingState newState = BookingState.parseState(state);
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
         switch (newState) {
             case ALL:
-                return bookingRepository.findAllByOwnerIdOrderByStartDesc(ownerId)
+                return bookingRepository.findAllByOwnerIdOrderByStartDesc(ownerId, page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case PAST:
-                return bookingRepository.findAllByOwnerIdAndEndIsBeforeOrderByStartDesc(ownerId, LocalDateTime.now())
+                return bookingRepository.findAllByOwnerIdAndEndIsBeforeOrderByStartDesc(ownerId, LocalDateTime.now(), page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case FUTURE:
-                return bookingRepository.findAllByOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now())
+                return bookingRepository.findAllByOwnerIdAndStartAfterOrderByStartDesc(ownerId, LocalDateTime.now(), page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             case CURRENT:
-                return bookingRepository.findAllByOwnerIdCurrentBookings(ownerId, LocalDateTime.now())
+                return bookingRepository.findAllByOwnerIdCurrentBookings(ownerId, LocalDateTime.now(), page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());
             default:
                 BookingStatus status = BookingStatus.valueOf(String.valueOf(state));
-                return bookingRepository.findAllByOwnerIdAndStatusOrderByStartDesc(ownerId, status)
+                return bookingRepository.findAllByOwnerIdAndStatusOrderByStartDesc(ownerId, status, page)
                         .stream()
                         .map(BookingMapper::toBookingDto)
                         .collect(Collectors.toList());

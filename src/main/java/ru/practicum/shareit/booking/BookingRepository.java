@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -31,49 +32,49 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "where b.booker.id = ?1 " +
             "and (?2 between b.start and b.end) " +
             "order by b.start desc")
-    List<Booking> findAllByBookerIdCurrentBookings(Long userId, LocalDateTime now);
+    List<Booking> findAllByBookerIdCurrentBookings(Long userId, LocalDateTime now, PageRequest page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "order by b.start desc")
-    List<Booking> findAllByOwnerIdOrderByStartDesc(Long ownerId);
+    List<Booking> findAllByOwnerIdOrderByStartDesc(Long ownerId, PageRequest page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and b.end < ?2 " +
             "order by b.start desc")
-    List<Booking> findAllByOwnerIdAndEndIsBeforeOrderByStartDesc(Long ownerId, LocalDateTime now);
+    List<Booking> findAllByOwnerIdAndEndIsBeforeOrderByStartDesc(Long ownerId, LocalDateTime now, PageRequest page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and b.start > ?2 " +
             "order by b.start desc")
-    List<Booking> findAllByOwnerIdAndStartAfterOrderByStartDesc(Long ownerId, LocalDateTime now);
+    List<Booking> findAllByOwnerIdAndStartAfterOrderByStartDesc(Long ownerId, LocalDateTime now, PageRequest page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and (?2 between b.start and b.end) " +
             "order by b.start desc")
-    List<Booking> findAllByOwnerIdCurrentBookings(Long ownerId, LocalDateTime now);
+    List<Booking> findAllByOwnerIdCurrentBookings(Long ownerId, LocalDateTime now, PageRequest page);
 
     @Query("select b " +
             "from Booking as b " +
             "where b.item.ownerId = ?1 " +
             "and b.status = ?2 " +
             "order by b.start desc")
-    List<Booking> findAllByOwnerIdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status);
+    List<Booking> findAllByOwnerIdAndStatusOrderByStartDesc(Long ownerId, BookingStatus status, PageRequest page);
 
-    List<Booking> findAllByBookerIdOrderByStartDesc(Long userId);
+    List<Booking> findAllByBookerIdOrderByStartDesc(Long userId, PageRequest page);
 
-    List<Booking> findALLByBookerIdAndStatusOrderByStartDesc(Long userId, BookingStatus status);
+    List<Booking> findALLByBookerIdAndStatusOrderByStartDesc(Long userId, BookingStatus status, PageRequest page);
 
     List<Booking> findByBookerIdAndItemId(Long bookerId, Long itemId);
 
-    List<Booking> findAllByBookerIdAndEndIsBeforeOrderByStartDesc(Long userId, LocalDateTime now);
+    List<Booking> findAllByBookerIdAndEndIsBeforeOrderByStartDesc(Long userId, LocalDateTime now, PageRequest page);
 
-    List<Booking> findAllByBookerIdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime now);
+    List<Booking> findAllByBookerIdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime now, PageRequest page);
 }
