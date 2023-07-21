@@ -125,11 +125,47 @@ public class BookingServiceTest {
     }
 
     @Test
-    void shouldFindListOfAllBookings() {
+    void shouldFindListOfALLBookings() {
         bookings = List.of(booking, futureBooking, pastBooking);
         when(bookingRepository.findAllByBookerIdOrderByStartDesc(anyLong(), any())).thenReturn(bookings);
-        List<BookingDto> bookings = bookingService.getAllBookerBookings(1L, "ALL", 0, 10);
+        List<BookingDto> bookings = bookingService.getAllBookerBookings
+                (1L, "ALL", 0, 10);
         assertEquals(3, bookings.size());
+    }
+
+    @Test
+    void shouldFindListOfREJECTEDBookings() {
+        List<BookingDto> bookingsR = bookingService.getAllBookerBookings
+                (1L, "REJECTED", 0, 10);
+        assertEquals(0, bookingsR.size());
+    }
+
+    @Test
+    void shouldFindListOfPASTBookings() {
+        List<BookingDto> bookingsP = bookingService.getAllBookerBookings
+                (1L, "PAST", 0, 10);
+        assertEquals(0, bookingsP.size());
+    }
+
+    @Test
+    void shouldFindListOfCURRENTBookings() {
+        List<BookingDto> bookingsC = bookingService.getAllBookerBookings
+                (1L, "CURRENT", 0, 10);
+        assertEquals(0, bookingsC.size());
+    }
+
+    @Test
+    void shouldFindListOfWAITINGBookings() {
+        List<BookingDto> bookingsW = bookingService.getAllBookerBookings
+                (1L, "WAITING", 0, 10);
+        assertEquals(0, bookingsW.size());
+    }
+
+    @Test
+    void shouldFindListOfFUTUREBookings() {
+        List<BookingDto> bookingsF = bookingService.getAllBookerBookings
+                (1L, "FUTURE", 0, 10);
+        assertEquals(0, bookingsF.size());
     }
 
     @Test
@@ -139,11 +175,47 @@ public class BookingServiceTest {
     }
 
     @Test
-    void shouldFindListOfAllBookingsWithCorrectState() {
+    void shouldFindListOfAllBookingsWithStateALL() {
         bookings = List.of(booking, futureBooking, pastBooking);
         when(bookingRepository.findAllByOwnerIdOrderByStartDesc(anyLong(), any())).thenReturn(bookings);
-        List<BookingDto> bookings = bookingService.getAllBookerItemsBooking(2L, "ALL", 0, 10);
+        List<BookingDto> bookings = bookingService.getAllBookerItemsBooking
+                (2L, "ALL", 0, 10);
         assertEquals(3, bookings.size());
+    }
+
+    @Test
+    void shouldFindListOfAllBookingsWithStateREJECTED() {
+        List<BookingDto> bookingsR = bookingService.getAllBookerItemsBooking
+                (2L, "REJECTED", 0, 10);
+        assertEquals(0, bookingsR.size());
+    }
+
+    @Test
+    void shouldFindListOfAllBookingsWithStateWAITING() {
+        List<BookingDto> bookingsW = bookingService.getAllBookerItemsBooking
+                (2L, "WAITING", 0, 10);
+        assertEquals(0, bookingsW.size());
+    }
+
+    @Test
+    void shouldFindListOfAllBookingsWithStateCURRENT() {
+        List<BookingDto> bookingsC = bookingService.getAllBookerItemsBooking
+                (2L, "CURRENT", 0, 10);
+        assertEquals(0, bookingsC.size());
+    }
+
+    @Test
+    void shouldFindListOfAllBookingsWithStateFUTURE() {
+        List<BookingDto> bookingsF = bookingService.getAllBookerItemsBooking
+                (2L, "FUTURE", 0, 10);
+        assertEquals(0, bookingsF.size());
+    }
+
+    @Test
+    void shouldFindListOfAllBookingsWithStatePAST() {
+        List<BookingDto> bookingsP = bookingService.getAllBookerItemsBooking
+                (2L, "PAST", 0, 10);
+        assertEquals(0, bookingsP.size());
     }
 
     @Test

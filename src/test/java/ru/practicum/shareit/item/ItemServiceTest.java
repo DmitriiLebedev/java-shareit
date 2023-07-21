@@ -74,7 +74,13 @@ class ItemServiceTest {
         itemRepository.save(item);
         ItemBookingModel bookingModel = itemService.findItemById(1L, 1L);
         assertEquals(1L, bookingModel.getId());
+    }
 
+    @Test
+    void shouldFindAllItemsByOwner() {
+        itemRepository.save(item);
+        List<ItemBookingModel> list = itemService.findAllItemsByOwner(user.getId());
+        assertEquals(1, list.size());
     }
 
     @Test

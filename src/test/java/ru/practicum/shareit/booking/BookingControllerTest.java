@@ -149,4 +149,15 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(3)));
     }
+
+    @Test
+    public void shouldReturnAllBookingsForUser2() throws Exception {
+        bookingDto.setBooker(user);
+        when(bookingService.getAllBookerItemsBooking(anyLong(), anyString(), anyInt(), anyInt()))
+                .thenReturn(List.of(bookingDto));
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", 1))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
 }
