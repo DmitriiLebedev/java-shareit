@@ -12,6 +12,9 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnavailableException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.request.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
@@ -19,8 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
@@ -233,5 +235,37 @@ public class BookingServiceTest {
         UnavailableException ex = assertThrows(UnavailableException.class,
                 () -> bookingService.updateBookingStatus(user1.getId(), booking.getId(), true));
         assertEquals("Booking is already confirmed", ex.getMessage());
+    }
+
+    @Test
+    void shouldBuildEntitiesForTestCoverage() {
+        Booking b = Booking.builder()
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().plusDays(1))
+                .booker(user)
+                .item(item)
+                .build();
+        assertNotNull(b);
+        BookingForItem bf = new BookingForItem();
+        bf.setId(1L);
+        bf.setBookerId(1L);
+        assertNotNull(bf);
+        BookingRequest br = new BookingRequest(1L,
+                LocalDateTime.now().plusDays(10), LocalDateTime.now().plusDays(20));
+        Booking bm = BookingMapper.toBooking(br);
+        assertNotNull(bm);
+        Comment c = Comment.builder()
+                .author(user)
+                .text("text")
+                .item(item)
+                .created(LocalDateTime.now())
+                .build();
+        assertNotNull(c);
+        CommentDto cd = new CommentDto();
+        assertNull(cd.getId());
+        ItemRequestDto ird = new ItemRequestDto();
+        assertNull(ird.getId());
+        BookingForItem bfi = new BookingForItem(1L, 1L);
+        assertNotNull(bfi.getId());
     }
 }

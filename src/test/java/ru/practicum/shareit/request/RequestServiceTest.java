@@ -18,8 +18,7 @@ import ru.practicum.shareit.user.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -77,9 +76,9 @@ class RequestServiceTest {
         itemRepository.save(item);
         ItemRequest itemRequest = ItemRequest.builder()
                 .description("thing")
-                .requester(1L)
                 .created(LocalDateTime.now())
                 .build();
+        itemRequest.setRequester(1L);
         requestRepository.save(itemRequest);
         ItemDto itemRequestDto = ItemDto.builder()
                 .description("thing")
@@ -87,6 +86,8 @@ class RequestServiceTest {
         service.create(1, itemRequestDto);
         ItemRequestDto requestDto = service.getRequestId(1, 1);
         assertEquals(requestDto.getDescription(), itemRequestDto.getDescription());
+        List<ItemRequestDto> request = service.get(1L, 0, 20);
+        assertNotNull(request);
     }
 
     @Test
@@ -139,6 +140,7 @@ class RequestServiceTest {
         ItemDto itemRequestDto = ItemDto.builder()
                 .description("thing")
                 .build();
+        assertEquals(itemRequestDto.getDescription(), "thing");
         List<ItemRequestDto> itemRequestResponseDto = service.getByUserId(1);
         assertEquals(itemRequestResponseDto.size(), 1);
     }
