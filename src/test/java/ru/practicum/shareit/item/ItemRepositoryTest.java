@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
@@ -47,7 +48,7 @@ class ItemRepositoryTest {
     void shouldSearchAndFindItemByIncompleteNameIgnoringCase() {
         userRepository.save(user);
         itemRepository.save(item);
-        List<Item> itemList = itemRepository.findItemsByTextIgnoreCase("stu");
+        List<Item> itemList = itemRepository.findItemsByTextIgnoreCase("stu", PageRequest.of(0, 20));
         assertEquals(itemList.size(), 1);
     }
 }

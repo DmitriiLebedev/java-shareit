@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.Booking;
@@ -79,9 +80,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemBookingModel> findAllItemsByOwner(Long ownerId) {
+    public List<ItemBookingModel> findAllItemsByOwner(Long ownerId, Integer from, Integer size) {
         userService.getUserOptional(ownerId);
-        List<Item> items = itemRepository.findAllByOwnerId(ownerId);
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        List<Item> items = itemRepository.findAllByOwnerId(ownerId, page);
         return items.stream()
                 .map(item -> findItemById(ownerId, item.getId()))
                 .sorted(Comparator.comparing(ItemBookingModel::getId))
@@ -89,11 +91,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> search(String text) {
+    public List<ItemDto> search(String text, Integer from, Integer size) {
         if (text.isEmpty()) {
             return Collections.emptyList();
         }
-        List<Item> items = itemRepository.findItemsByTextIgnoreCase(text.toLowerCase());
+        PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size);
+        List<Item> items = itemRepository.findItemsByTextIgnoreCase(text.toLowerCase(), page);
         return ItemMapper.toItemDtoList(items);
     }
 

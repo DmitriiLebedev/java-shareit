@@ -79,7 +79,7 @@ class ItemServiceTest {
     @Test
     void shouldFindAllItemsByOwner() {
         itemRepository.save(item);
-        List<ItemBookingModel> list = itemService.findAllItemsByOwner(user.getId());
+        List<ItemBookingModel> list = itemService.findAllItemsByOwner(user.getId(), 0, 20);
         assertEquals(1, list.size());
     }
 
@@ -128,13 +128,13 @@ class ItemServiceTest {
                 .ownerId(1L)
                 .build();
         itemRepository.save(item2);
-        List<ItemDto> itemList = itemService.search("item");
+        List<ItemDto> itemList = itemService.search("item", 0, 20);
         assertEquals(itemList.size(), 2);
     }
 
     @Test
     void shouldNotSearchWithEmptyText() {
-        List<ItemDto> itemList = itemService.search("");
+        List<ItemDto> itemList = itemService.search("", 0, 20);
         assertEquals(itemList.size(), 0);
     }
 

@@ -122,7 +122,7 @@ class ItemControllerTest {
 
     @Test
     public void shouldFindAllItems() throws Exception {
-        when(itemService.findAllItemsByOwner(anyLong()))
+        when(itemService.findAllItemsByOwner(anyLong(), anyInt(), anyInt()))
                 .thenReturn(List.of(itemBookingModel));
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1L))
@@ -137,7 +137,7 @@ class ItemControllerTest {
 
     @Test
     public void shouldSearchForItems() throws Exception {
-        when(itemService.search(anyString())).thenReturn(List.of(itemDto));
+        when(itemService.search(anyString(), anyInt(), anyInt())).thenReturn(List.of(itemDto));
         mockMvc.perform(get("/items/search?text=item")
                         .header("X-Sharer-User-Id", 1L))
                 .andExpect(status().isOk())
