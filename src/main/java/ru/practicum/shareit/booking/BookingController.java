@@ -33,13 +33,17 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllUserBookings(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                               @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getAllBookerBookings(userId, state);
+                                               @RequestParam(defaultValue = "ALL") String state,
+                                               @RequestParam(value = "from", defaultValue = "0") int from,
+                                               @RequestParam(value = "size", defaultValue = "10") int size) {
+        return bookingService.getAllBookerBookings(userId, state, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllUserItemsBooking(@RequestHeader("X-Sharer-User-Id") Long ownerId,
-                                                   @RequestParam(defaultValue = "ALL") String state) {
-        return bookingService.getAllBookerItemsBooking(ownerId, state);
+                                                   @RequestParam(defaultValue = "ALL") String state,
+                                                   @RequestParam(value = "from", defaultValue = "0") int from,
+                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+        return bookingService.getAllBookerItemsBooking(ownerId, state, from, size);
     }
 }

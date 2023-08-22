@@ -8,6 +8,8 @@ import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentRequest;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -18,8 +20,11 @@ public class ItemController {
     final ItemServiceImpl itemService;
 
     @GetMapping
-    public List<ItemBookingModel> findAllItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
-        return itemService.findAllItemsByOwner(ownerId);
+    public List<ItemBookingModel> findAllItemsByOwner(
+            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(value = "size", defaultValue = "20") @Positive int size,
+            @RequestHeader("X-Sharer-User-Id") long userId) {
+        return itemService.findAllItemsByOwner(userId, from, size);
     }
 
     @GetMapping("/{itemId}")
@@ -29,8 +34,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> search(@RequestParam("text") String subString) {
-        return itemService.search(subString);
+    public List<ItemDto> search(
+            @RequestParam("text") String subString,
+            @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
+            @RequestParam(value = "size", defaultValue = "20") @Positive Integer size) {
+        return itemService.search(subString, from, size);
     }
 
     @PostMapping
